@@ -64,3 +64,4 @@
 ## 3. KẾT LUẬN & KIẾN NGHỊ BẢO VỆ ĐỒ ÁN
 1. **Lựa chọn mô hình đưa vào sản phẩm thực tế:** Chọn **DenseNet121** làm mô hình mặc định trên Web/App vì đạt độ chính xác Top-5 lên tới **96.71%**, thời gian phản hồi nhanh và kích thước file chỉ 34.6MB.
 2. **Giá trị học thuật:** Đã thực hiện đầy đủ ma trận thực nghiệm so sánh đa dạng (DenseNet vs ResNet vs MobileNet), giải thích thấu đáo tại sao một số mô hình đạt 80% còn mô hình từ đầu chỉ đạt 30%.
+
