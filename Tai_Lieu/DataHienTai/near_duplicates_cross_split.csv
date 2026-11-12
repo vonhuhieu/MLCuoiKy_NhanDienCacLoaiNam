@@ -1,0 +1,2 @@
+﻿split_a,class_a,path_a,split_b,class_b,path_b,phash_distance,sha256_equal,label_conflict,review_status
+train,Cantharellus cinnabarinus,train/Cantharellus cinnabarinus/Cantharellus cinnabarinus_136.jpg,test,Cantharellus cinnabarinus,test/Cantharellus cinnabarinus/Cantharellus cinnabarinus_85.jpg,4,False,False,UNREVIEWED

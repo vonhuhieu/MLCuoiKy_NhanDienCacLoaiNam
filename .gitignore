@@ -1,0 +1,35 @@
+# ====================================================================
+#   GITIGNORE - MUSHROOM-44 AI CLASSIFICATION PROJECT
+# ====================================================================
+
+# Virtual Environment
+.venv/
+env/
+venv/
+ENV/
+
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Matplotlib & temporary cache
+.matplotlib/
+*.tmp
+
+# Editor & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# File mo hinh ResNet50 (>280MB - vuot qua gioi han 100MB cua GitHub)
+output/ResNet50*.keras
+
+# Tranh trung lap file model (chi commit {Model}_best.keras chuan)
+output/*_pretrained_best.keras
+
+# Bo du lieu anh tho (>900MB - khuyen nghi luu tru tren Drive / Kaggle)
+Tai_Lieu/DataChuaRoTinhHinh/

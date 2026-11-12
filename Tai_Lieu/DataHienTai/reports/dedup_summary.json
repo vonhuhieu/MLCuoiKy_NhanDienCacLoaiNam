@@ -1,0 +1,26 @@
+{
+  "dataset_root_original": "/kaggle/input/datasets/thoduynhunh/mushroom-44-clean",
+  "audit_zip": "/kaggle/working/Mushroom44_Step0_DatasetAudit.zip",
+  "original_total_images": 13570,
+  "deduped_total_images": 13547,
+  "removed_exact_duplicates": 23,
+  "original_split_counts": {
+    "train": 9497,
+    "test": 2065,
+    "valid": 2008
+  },
+  "deduped_split_counts": {
+    "train": 9476,
+    "test": 2064,
+    "valid": 2007
+  },
+  "removed_by_split": {
+    "train": 21,
+    "test": 1,
+    "valid": 1
+  },
+  "num_classes": 44,
+  "near_duplicate_cross_split_status": "reviewed_by_user_keep_both",
+  "decision_rule": "keep lexicographically first path within each exact-duplicate SHA256 group; remove all others",
+  "status": "PASS_FOR_TRAINING_AFTER_DEDUP"
+}

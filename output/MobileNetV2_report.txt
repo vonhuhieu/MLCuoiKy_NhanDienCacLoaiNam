@@ -1,0 +1,54 @@
+Mô hình: MobileNetV2
+Test Accuracy (Top-1): 2.37%
+Test Accuracy (Top-5): 11.48%
+
+                           precision    recall  f1-score   support
+
+        Agaricus augustus     0.0000    0.0000    0.0000        51
+   Amanita amerirubescens     0.0000    0.0000    0.0000        49
+      Amanita brunnescens     0.0000    0.0000    0.0000        47
+    Amanita calyptroderma     0.0000    0.0000    0.0000        49
+       Amanita flavoconia     0.0000    0.0000    0.0000        48
+         Amanita muscaria     0.0237    1.0000    0.0464        49
+           Amanita velosa     0.0000    0.0000    0.0000        43
+        Armillaria mellea     0.0000    0.0000    0.0000        48
+     Armillaria tabescens     0.0000    0.0000    0.0000        51
+      Artomyces pyxidatus     0.0000    0.0000    0.0000        51
+       Bolbitius titubans     0.0000    0.0000    0.0000        47
+         Boletus pallidus     0.0000    0.0000    0.0000        48
+        Boletus rex-veris     0.0000    0.0000    0.0000        46
+Cantharellus californicus     0.0000    0.0000    0.0000        50
+Cantharellus cinnabarinus     0.0000    0.0000    0.0000        51
+     Cerioporus squamosus     0.0000    0.0000    0.0000        50
+           Clitocybe nuda     0.0000    0.0000    0.0000        51
+     Coprinellus micaceus     0.0000    0.0000    0.0000        48
+         Coprinus comatus     0.0000    0.0000    0.0000        48
+  Daedaleopsis confragosa     0.0000    0.0000    0.0000        42
+       Entoloma abortivum     0.0000    0.0000    0.0000        44
+     Flammulina velutipes     0.0000    0.0000    0.0000        48
+     Ganoderma applanatum     0.0000    0.0000    0.0000        49
+         Grifola frondosa     0.0000    0.0000    0.0000        46
+     Hericium coralloides     0.0000    0.0000    0.0000        47
+Hygrophoropsis aurantiaca     0.0000    0.0000    0.0000        48
+    Hypholoma fasciculare     0.0000    0.0000    0.0000        42
+   Hypomyces lactifluorum     0.0000    0.0000    0.0000        50
+    Ischnoderma resinosum     0.0000    0.0000    0.0000        45
+    Laetiporus sulphureus     0.0000    0.0000    0.0000        44
+      Lycoperdon perlatum     0.0000    0.0000    0.0000        49
+     Lycoperdon pyriforme     0.0000    0.0000    0.0000        46
+        Mycena haematopus     0.0000    0.0000    0.0000        45
+      Omphalotus illudens     0.0000    0.0000    0.0000        47
+    Omphalotus olivascens     0.0000    0.0000    0.0000        43
+       Phlebia tremellosa     0.0000    0.0000    0.0000        44
+      Pleurotus ostreatus     0.0000    0.0000    0.0000        46
+    Pleurotus pulmonarius     0.0000    0.0000    0.0000        47
+    Psilocybe pelliculosa     0.0000    0.0000    0.0000        45
+    Retiboletus ornatipes     0.0000    0.0000    0.0000        45
+       Sarcomyxa serotina     0.0000    0.0000    0.0000        45
+       Stropharia ambigua     0.0000    0.0000    0.0000        45
+         Suillus spraguei     0.0000    0.0000    0.0000        44
+  Tricholoma murrillianum     0.0000    0.0000    0.0000        43
+
+                 accuracy                         0.0237      2064
+                macro avg     0.0005    0.0227    0.0011      2064
+             weighted avg     0.0006    0.0237    0.0011      2064

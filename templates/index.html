@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nhận Diện 44 Loài Nấm - AI Deep Learning</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            forest: {
+              50: '#f2f8f4',
+              100: '#e1efe6',
+              500: '#2d7a4d',
+              600: '#23633e',
+              700: '#1c4f32',
+              800: '#173f28',
+              900: '#133422',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    [v-cloak] { display: none; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+{% raw %}
+  <div id="app" v-cloak class="flex-1 flex flex-col">
+    <!-- NAVBAR -->
+    <header class="bg-forest-700 text-white shadow-md sticky top-0 z-50">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3 cursor-pointer" @click="currentTab = 'predict'">
+          <span class="text-3xl">🍄</span>
+          <div>
+            <h1 class="text-xl font-bold tracking-tight">Mushroom-44 AI</h1>
+            <p class="text-xs text-forest-100">Hệ Thống Nhận Diện Các Loài Nấm</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex space-x-1 sm:space-x-3 text-sm font-medium">
+          <button 
+            @click="currentTab = 'predict'" 
+            :class="currentTab === 'predict' ? 'bg-forest-800 text-white shadow' : 'text-forest-100 hover:bg-forest-600'"
+            class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-camera"></i>
+            <span>Nhận diện</span>
+          </button>
+          <button 
+            @click="currentTab = 'wiki'" 
+            :class="currentTab === 'wiki' ? 'bg-forest-800 text-white shadow' : 'text-forest-100 hover:bg-forest-600'"
+            class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-book-open"></i>
+            <span>Tra cứu 44 loài</span>
+          </button>
+          <button 
+            @click="currentTab = 'architecture'" 
+            :class="currentTab === 'architecture' ? 'bg-forest-800 text-white shadow' : 'text-forest-100 hover:bg-forest-600'"
+            class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-diagram-project"></i>
+            <span>Kiến trúc hệ thống</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full">
+
+      <!-- TAB 1: NHẬN DIỆN ẢNH (PREDICTION) -->
+      <section v-if="currentTab === 'predict'" class="space-y-6">
+        <!-- Hero Banner -->
+        <div class="bg-gradient-to-r from-forest-600 to-emerald-700 text-white rounded-2xl p-6 sm:p-8 shadow-lg">
+          <div class="max-w-3xl">
+            <span class="bg-forest-800/60 text-emerald-200 text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider">
+              Mô hình CNN Hiện Đại (ResNet / DenseNet / MobileNet)
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold mt-3 leading-snug">
+              Tải ảnh nấm để nhận diện loài & kiểm tra độ an toàn
+            </h2>
+            <p class="text-emerald-100 text-sm sm:text-base mt-2">
+              Mô hình Deep Learning tính toán xác suất phân loại trên 44 loài nấm tự nhiên, cảnh báo tức thì nguy cơ gây độc hoặc ảo giác.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Cột bên trái: Upload & Cấu hình -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+              <h3 class="font-bold text-slate-800 text-base mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-forest-600"></i> Cấu hình dự đoán
+              </h3>
+              
+              <!-- Chọn mô hình -->
+              <div class="mb-4">
+                <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">
+                  Chọn Mô Hình CNN
+                </label>
+                <select v-model="selectedModel" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-forest-500 outline-none">
+                  <option value="MobileNetV2">MobileNetV2 (Nhanh & Nhẹ)</option>
+                  <option value="ResNet50">ResNet50 (Độ sâu 50 tầng)</option>
+                  <option value="DenseNet121">DenseNet121 (Kết nối dày đặc)</option>
+                </select>
+              </div>
+
+              <!-- Hai nút thao tác nhanh: Tải tệp & Dán từ Clipboard -->
+              <div class="grid grid-cols-2 gap-2 mb-3">
+                <button 
+                  type="button"
+                  @click="triggerFileInput"
+                  class="flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-slate-300 hover:border-forest-500 bg-white hover:bg-forest-50/50 text-slate-700 hover:text-forest-700 text-xs font-semibold transition-all shadow-xs cursor-pointer">
+                  <i class="fa-solid fa-cloud-arrow-up text-forest-600"></i>
+                  <span>Tải ảnh từ máy</span>
+                </button>
+                <button 
+                  type="button"
+                  @click="pasteFromClipboard"
+                  class="flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-forest-300 bg-forest-50 hover:bg-forest-100 text-forest-800 text-xs font-semibold transition-all shadow-xs cursor-pointer">
+                  <i class="fa-solid fa-paste text-forest-600"></i>
+                  <span>Dán ảnh (Ctrl + V)</span>
+                </button>
+              </div>
+
+              <!-- Vùng kéo thả upload ảnh -->
+              <div 
+                @dragover.prevent="isDragging = true"
+                @dragleave.prevent="isDragging = false"
+                @drop.prevent="handleDrop"
+                :class="isDragging ? 'border-forest-500 bg-forest-50/50' : 'border-slate-300 hover:border-forest-400 bg-slate-50'"
+                class="border-2 border-dashed rounded-xl p-5 text-center transition-all relative group">
+                
+                <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" class="hidden">
+                
+                <div v-if="!imagePreview" @click="triggerFileInput" class="space-y-2 cursor-pointer py-3">
+                  <i class="fa-solid fa-cloud-arrow-up text-4xl text-forest-500 group-hover:scale-110 transition-transform"></i>
+                  <p class="text-sm font-semibold text-slate-700">Kéo & thả ảnh nấm vào đây</p>
+                  <p class="text-xs text-slate-400">hoặc nhấn để duyệt ảnh từ máy tính (JPG, PNG)</p>
+                  <div class="pt-2 flex items-center justify-center gap-1.5 text-[11px] text-forest-700 font-medium">
+                    <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded text-slate-700 font-mono shadow-xs">Ctrl + V</kbd>
+                    <span>để dán ảnh trực tiếp từ Clipboard</span>
+                  </div>
+                </div>
+
+                <div v-else class="space-y-3">
+                  <div class="relative inline-block">
+                    <img :src="imagePreview" alt="Xem trước ảnh" class="max-h-52 mx-auto rounded-lg shadow-sm object-cover border border-slate-200">
+                    <button 
+                      type="button"
+                      @click.stop="clearImage" 
+                      title="Xóa ảnh này"
+                      class="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md transition">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+                  <!-- Công cụ khi đã có ảnh: Sao chép & Dán mới -->
+                  <div class="flex items-center justify-center gap-2 pt-1">
+                    <button 
+                      type="button"
+                      @click="copyImageToClipboard"
+                      class="text-slate-700 hover:text-forest-700 bg-white hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-xs cursor-pointer"
+                      title="Sao chép ảnh này vào bộ nhớ tạm">
+                      <i class="fa-regular fa-copy text-forest-600"></i>
+                      <span>Sao chép ảnh</span>
+                    </button>
+                    <button 
+                      type="button"
+                      @click="pasteFromClipboard"
+                      class="text-forest-700 hover:text-forest-800 bg-forest-50 hover:bg-forest-100 border border-forest-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-xs cursor-pointer"
+                      title="Dán đè ảnh mới từ Clipboard">
+                      <i class="fa-solid fa-paste"></i>
+                      <span>Dán ảnh mới</span>
+                    </button>
+                    <button 
+                      type="button"
+                      @click="triggerFileInput"
+                      class="text-slate-600 hover:text-slate-800 bg-white hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                      <i class="fa-solid fa-folder-open"></i>
+                      <span>Đổi ảnh</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Thử nhanh với các ảnh nấm mẫu -->
+              <div class="mt-4 pt-3 border-t border-slate-200">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-flask text-forest-600"></i>
+                    <span>Thử nhanh ảnh nấm mẫu:</span>
+                  </span>
+                  <span class="text-[10px] text-slate-400">Nhấn để thử ngay</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2">
+                  <div 
+                    v-for="sample in sampleMushrooms" 
+                    :key="sample.name"
+                    @click="loadSampleImage(sample)"
+                    class="p-1.5 bg-slate-50 hover:bg-forest-50/70 border border-slate-200 hover:border-forest-400 rounded-lg cursor-pointer text-center transition flex flex-col items-center group shadow-xs">
+                    <img :src="sample.file" :alt="sample.vn" class="w-12 h-12 object-cover rounded-md mb-1 group-hover:scale-105 transition shadow-xs">
+                    <span class="text-[10px] font-semibold text-slate-700 line-clamp-1 group-hover:text-forest-700">{{ sample.vn }}</span>
+                    <span :class="getBadgeClass(sample.type)" class="text-[8px] px-1 py-0.5 rounded-full mt-0.5 font-medium scale-90">{{ sample.badge }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Nút Dự đoán -->
+              <button 
+                @click="submitPrediction" 
+                :disabled="!selectedFile || isLoading"
+                class="w-full mt-4 bg-forest-600 hover:bg-forest-700 disabled:bg-slate-300 text-white font-semibold py-2.5 px-4 rounded-xl shadow transition-all flex items-center justify-center gap-2">
+                <i v-if="isLoading" class="fa-solid fa-circle-notch fa-spin"></i>
+                <i v-else class="fa-solid fa-magnifying-glass"></i>
+                <span>{{ isLoading ? 'Đang phân tích ảnh...' : 'Bắt Đầu Nhận Diện' }}</span>
+              </button>
+
+              <div v-if="errorMessage" class="mt-3 p-3 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>{{ errorMessage }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cột bên phải: Kết quả dự đoán -->
+          <div class="lg:col-span-7 space-y-4">
+            <!-- Trạng thái chờ -->
+            <div v-if="!predictionResult && !isLoading" class="bg-white p-12 rounded-2xl shadow-sm border border-slate-200 text-center text-slate-400 flex flex-col items-center justify-center h-full min-h-[300px]">
+              <i class="fa-solid fa-wand-magic-sparkles text-5xl mb-3 text-slate-300"></i>
+              <p class="text-base font-medium">Chưa có kết quả phân loại</p>
+              <p class="text-xs text-slate-400 mt-1 max-w-sm">
+                Hãy tải lên một tấm ảnh nấm ở bảng bên trái và nhấn "Bắt Đầu Nhận Diện".
+              </p>
+            </div>
+
+            <!-- Đang tải -->
+            <div v-if="isLoading" class="bg-white p-12 rounded-2xl shadow-sm border border-slate-200 text-center flex flex-col items-center justify-center h-full min-h-[300px]">
+              <div class="w-12 h-12 border-4 border-forest-200 border-t-forest-600 rounded-full animate-spin mb-4"></div>
+              <p class="text-slate-700 font-semibold text-sm">Đang nạp trọng số và suy luận qua mạng CNN...</p>
+              <p class="text-slate-400 text-xs mt-1">Tính toán phân bố Softmax trên 44 loài</p>
+            </div>
+
+            <!-- Kết quả chi tiết -->
+            <div v-if="predictionResult && !isLoading" class="space-y-4">
+              <!-- Top 1 Card -->
+              <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex items-start justify-between">
+                  <div>
+                    <span class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Loài dự đoán hàng đầu (Top 1)</span>
+                    <h3 class="text-xl font-bold text-slate-900 mt-0.5">
+                      {{ predictionResult.top_prediction.vn_name }}
+                    </h3>
+                    <p class="text-sm italic text-slate-500 font-serif">
+                      {{ predictionResult.top_prediction.scientific_name }}
+                    </p>
+                  </div>
+                  <!-- Badge độc tính -->
+                  <span :class="getBadgeClass(predictionResult.top_prediction.edibility)" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide flex items-center gap-1.5 shadow-sm">
+                    <i :class="getBadgeIcon(predictionResult.top_prediction.edibility)"></i>
+                    <span>{{ predictionResult.top_prediction.edibility_vn }}</span>
+                  </span>
+                </div>
+
+                <div class="p-5 space-y-4">
+                  <!-- Xác suất thanh bar -->
+                  <div>
+                    <div class="flex justify-between text-xs font-semibold mb-1">
+                      <span class="text-slate-600">Độ tin cậy xác suất</span>
+                      <span class="text-forest-700 text-sm font-bold">{{ predictionResult.top_prediction.probability }}%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                      <div 
+                        class="bg-gradient-to-r from-emerald-500 to-forest-600 h-3 rounded-full transition-all duration-700"
+                        :style="{ width: predictionResult.top_prediction.probability + '%' }">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Mô tả & môi trường sống -->
+                  <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-100 text-xs text-slate-700 space-y-2">
+                    <div>
+                      <span class="font-bold text-slate-900"><i class="fa-solid fa-circle-info text-forest-600 mr-1"></i> Đặc điểm nhận diện:</span>
+                      <span class="ml-1">{{ predictionResult.top_prediction.description }}</span>
+                    </div>
+                    <div>
+                      <span class="font-bold text-slate-900"><i class="fa-solid fa-tree text-forest-600 mr-1"></i> Môi trường sống:</span>
+                      <span class="ml-1">{{ predictionResult.top_prediction.habitat }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top 5 Bảng xác suất -->
+              <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <h4 class="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                  <i class="fa-solid fa-chart-bar text-forest-600"></i>
+                  <span>Top 5 Loài Có Xác Suất Cao Nhất (Softmax Output)</span>
+                </h4>
+                
+                <div class="space-y-3">
+                  <div v-for="(item, idx) in predictionResult.top_5" :key="idx" class="p-2.5 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors">
+                    <div class="flex items-center justify-between text-xs mb-1">
+                      <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-[10px]">
+                          {{ idx + 1 }}
+                        </span>
+                        <div>
+                          <span class="font-semibold text-slate-800">{{ item.vn_name }}</span>
+                          <span class="text-slate-400 italic ml-1.5 font-serif text-[11px]">({{ item.scientific_name }})</span>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span :class="getBadgeClass(item.edibility)" class="px-2 py-0.5 rounded text-[10px] font-semibold">
+                          {{ item.edibility_vn }}
+                        </span>
+                        <span class="font-bold text-slate-900 w-12 text-right">{{ item.probability }}%</span>
+                      </div>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                      <div 
+                        :class="idx === 0 ? 'bg-forest-600' : 'bg-slate-400'"
+                        class="h-1.5 rounded-full transition-all duration-500"
+                        :style="{ width: item.probability + '%' }">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: BÁCH KHOA TOÀN THƯ (WIKI 44 LOÀI) -->
+      <section v-if="currentTab === 'wiki'" class="space-y-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-book-bookmark text-forest-600"></i> Bách Khoa Toàn Thư 44 Loài Nấm
+              </h2>
+              <p class="text-xs text-slate-500 mt-1">Dữ liệu chuẩn hóa kèm tên khoa học, độc tính và mô tả chi tiết</p>
+            </div>
+            
+            <!-- Ô tìm kiếm -->
+            <div class="relative w-full sm:w-72">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+              <input 
+                type="text" 
+                v-model="searchQuery" 
+                placeholder="Tìm tên nấm, loài..." 
+                class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs focus:ring-2 focus:ring-forest-500 outline-none">
+            </div>
+          </div>
+
+          <!-- Bộ lọc danh mục -->
+          <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100 text-xs">
+            <button 
+              @click="filterType = 'all'" 
+              :class="filterType === 'all' ? 'bg-forest-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+              class="px-3 py-1.5 rounded-lg font-medium transition-all">
+              Tất cả ({{ allMushrooms.length }})
+            </button>
+            <button 
+              @click="filterType = 'edible'" 
+              :class="filterType === 'edible' ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'"
+              class="px-3 py-1.5 rounded-lg font-medium transition-all">
+              <i class="fa-solid fa-circle-check mr-1"></i> Ăn được
+            </button>
+            <button 
+              @click="filterType = 'toxic'" 
+              :class="filterType === 'toxic' ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 hover:bg-red-100'"
+              class="px-3 py-1.5 rounded-lg font-medium transition-all">
+              <i class="fa-solid fa-skull mr-1"></i> Có độc / Thức thần
+            </button>
+            <button 
+              @click="filterType = 'caution'" 
+              :class="filterType === 'caution' ? 'bg-amber-600 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
+              class="px-3 py-1.5 rounded-lg font-medium transition-all">
+              <i class="fa-solid fa-triangle-exclamation mr-1"></i> Cần cẩn trọng
+            </button>
+            <button 
+              @click="filterType = 'inedible'" 
+              :class="filterType === 'inedible' ? 'bg-slate-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+              class="px-3 py-1.5 rounded-lg font-medium transition-all">
+              <i class="fa-solid fa-ban mr-1"></i> Không ăn được
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid 44 loài -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div 
+            v-for="item in filteredMushrooms" 
+            :key="item.scientific_name"
+            class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div>
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <h4 class="font-bold text-slate-900 text-base">{{ item.vn_name }}</h4>
+                <span :class="getBadgeClass(item.edibility)" class="px-2 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap">
+                  {{ item.edibility_vn }}
+                </span>
+              </div>
+              <p class="text-xs font-serif italic text-slate-500 mb-3">{{ item.scientific_name }}</p>
+              <p class="text-xs text-slate-600 line-clamp-3 mb-2">{{ item.description }}</p>
+            </div>
+            <div class="pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center gap-1.5">
+              <i class="fa-solid fa-tree text-forest-600"></i>
+              <span class="truncate">{{ item.habitat }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: KIẾN TRÚC HỆ THỐNG (SPRING BOOT + VUEJS + MYSQL + AI) -->
+      <section v-if="currentTab === 'architecture'" class="space-y-6">
+        <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+          <div>
+            <span class="text-xs font-bold text-forest-600 uppercase tracking-wider">Mô Hình Đồ Án Chuyên Nghiệp</span>
+            <h2 class="text-2xl font-extrabold text-slate-900 mt-1">
+              Kiến Trúc Microservices: Spring Boot + VueJS + MySQL + Python AI Service
+            </h2>
+            <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+              Đây là kiến trúc chuẩn của các hệ thống doanh nghiệp thực tế: Tách biệt rõ ràng giữa tầng hiển thị (Frontend), tầng nghiệp vụ & dữ liệu (Backend Spring Boot + MySQL) và tầng tính toán mô hình AI (Python TensorFlow Service).
+            </p>
+          </div>
+
+          <!-- Sơ đồ khối trực quan -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+            <!-- Box 1: VueJS -->
+            <div class="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-4 flex flex-col items-center justify-between">
+              <div>
+                <i class="fa-brands fa-vuejs text-4xl text-emerald-600 mb-2"></i>
+                <h3 class="font-bold text-sm text-slate-800">1. VueJS Frontend</h3>
+                <p class="text-[11px] text-slate-600 mt-1">Giao diện người dùng Reactive, SPA, kéo thả tải ảnh, hiển thị biểu đồ xác suất.</p>
+              </div>
+              <span class="mt-3 text-[10px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded font-mono">Port: 3000 / 8080</span>
+            </div>
+
+            <!-- Box 2: Spring Boot -->
+            <div class="bg-blue-50 border-2 border-blue-300 rounded-xl p-4 flex flex-col items-center justify-between">
+              <div>
+                <i class="fa-brands fa-java text-4xl text-blue-600 mb-2"></i>
+                <h3 class="font-bold text-sm text-slate-800">2. Spring Boot API</h3>
+                <p class="text-[11px] text-slate-600 mt-1">Quản lý nghiệp vụ, xác thực User, lưu lịch sử nhận diện, gọi Python AI qua REST/Feign.</p>
+              </div>
+              <span class="mt-3 text-[10px] bg-blue-200 text-blue-800 px-2 py-0.5 rounded font-mono">Port: 8080 (REST)</span>
+            </div>
+
+            <!-- Box 3: MySQL -->
+            <div class="bg-orange-50 border-2 border-orange-300 rounded-xl p-4 flex flex-col items-center justify-between">
+              <div>
+                <i class="fa-solid fa-database text-4xl text-orange-600 mb-2"></i>
+                <h3 class="font-bold text-sm text-slate-800">3. MySQL Database</h3>
+                <p class="text-[11px] text-slate-600 mt-1">Lưu trữ 44 loài nấm (bách khoa), bảng lịch sử đoán `prediction_history`, tài khoản.</p>
+              </div>
+              <span class="mt-3 text-[10px] bg-orange-200 text-orange-800 px-2 py-0.5 rounded font-mono">Database: mushroom_db</span>
+            </div>
+
+            <!-- Box 4: Python AI Service -->
+            <div class="bg-purple-50 border-2 border-purple-300 rounded-xl p-4 flex flex-col items-center justify-between">
+              <div>
+                <i class="fa-brands fa-python text-4xl text-purple-600 mb-2"></i>
+                <h3 class="font-bold text-sm text-slate-800">4. Python AI Service</h3>
+                <p class="text-[11px] text-slate-600 mt-1">FastAPI/Flask tải mô hình Keras (ResNet/DenseNet/MobileNet), suy luận ảnh và trả về Top 5.</p>
+              </div>
+              <span class="mt-3 text-[10px] bg-purple-200 text-purple-800 px-2 py-0.5 rounded font-mono">Port: 5000 / 8000</span>
+            </div>
+          </div>
+
+          <!-- Các bước triển khai -->
+          <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-3 text-xs sm:text-sm text-slate-700">
+            <h4 class="font-bold text-slate-900 text-base flex items-center gap-2">
+              <i class="fa-solid fa-list-check text-forest-600"></i> Các Bước Tích Hợp Chi Tiết:
+            </h4>
+            <ol class="list-decimal pl-5 space-y-2">
+              <li>
+                <strong>Cơ sở dữ liệu MySQL</strong>: Đã chuẩn bị sẵn file <code class="bg-slate-200 px-1 py-0.5 rounded text-forest-700 font-mono">schema.sql</code> chứa bảng danh mục 44 loài và lịch sử nhận diện.
+              </li>
+              <li>
+                <strong>Python AI Service</strong>: Đã xây dựng sẵn <code class="bg-slate-200 px-1 py-0.5 rounded text-forest-700 font-mono">app.py</code> chạy Flask, có endpoint <code class="bg-slate-200 px-1 py-0.5 rounded text-purple-700 font-mono">POST /api/predict</code> để nhận ảnh từ Spring Boot.
+              </li>
+              <li>
+                <strong>Spring Boot Backend</strong>: Tạo Controller nhận MultipartFile từ VueJS, dùng <code class="bg-slate-200 px-1 py-0.5 rounded font-mono">RestTemplate</code> hoặc <code class="bg-slate-200 px-1 py-0.5 rounded font-mono">WebClient</code> gửi sang Python AI, nhận kết quả rồi lưu vào MySQL và trả về VueJS.
+              </li>
+              <li>
+                <strong>VueJS Frontend</strong>: Giao diện người dùng có thể dùng trực tiếp giao diện Web hiện tại hoặc build thành dự án Vue 3 (Vite + Pinia + Tailwind) độc lập.
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+      <!-- Toast Notification Alert -->
+      <transition 
+        enter-active-class="transition duration-300 ease-out" 
+        enter-from-class="transform translate-y-4 opacity-0" 
+        enter-to-class="transform translate-y-0 opacity-100" 
+        leave-active-class="transition duration-200 ease-in" 
+        leave-from-class="opacity-100" 
+        leave-to-class="opacity-0">
+        <div v-if="toastMessage" class="fixed bottom-6 right-6 z-50 bg-forest-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-forest-700 text-xs font-medium">
+          <i class="fa-solid fa-circle-check text-forest-300 text-base"></i>
+          <span>{{ toastMessage }}</span>
+        </div>
+      </transition>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+      <div class="max-w-6xl mx-auto px-4">
+        <p>Đồ Án Cuối Kỳ: <strong>Học Máy Và Ứng Dụng</strong> — Nhận Diện 44 Loài Nấm Bằng CNN Hiện Đại</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- VUE APP SCRIPT -->
+  <script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const currentTab = ref('predict');
+        const selectedModel = ref('DenseNet121');
+        const selectedFile = ref(null);
+        const imagePreview = ref(null);
+        const isDragging = ref(false);
+        const isLoading = ref(false);
+        const errorMessage = ref('');
+        const predictionResult = ref(null);
+        const fileInput = ref(null);
+        const toastMessage = ref('');
+        let toastTimer = null;
+
+        const showToast = (msg) => {
+          toastMessage.value = msg;
+          if (toastTimer) clearTimeout(toastTimer);
+          toastTimer = setTimeout(() => {
+            toastMessage.value = '';
+          }, 3500);
+        };
+
+        const sampleMushrooms = ref([
+          { name: 'Amanita muscaria', vn: 'Nấm tán bay', type: 'toxic', badge: 'Cực độc', file: '/static/samples/sample_amanita_muscaria.jpg' },
+          { name: 'Agaricus augustus', vn: 'Nấm hoàng đế', type: 'edible', badge: 'Ăn được', file: '/static/samples/sample_agaricus_augustus.jpg' },
+          { name: 'Cantharellus californicus', vn: 'Nấm mỡ gà', type: 'edible', badge: 'Ăn được', file: '/static/samples/sample_cantharellus.jpg' },
+          { name: 'Ganoderma applanatum', vn: 'Linh chi cổ cò', type: 'caution', badge: 'Dược liệu', file: '/static/samples/sample_ganoderma.jpg' }
+        ]);
+
+        const loadSampleImage = async (sample) => {
+          try {
+            isLoading.value = true;
+            errorMessage.value = '';
+            const res = await fetch(sample.file);
+            const blob = await res.blob();
+            const file = new File([blob], sample.name.replace(/ /g, '_') + '.jpg', { type: 'image/jpeg' });
+            processFile(file);
+            showToast('Đã nạp ảnh mẫu: ' + sample.vn + ' (' + sample.name + ')');
+          } catch (err) {
+            console.error('Lỗi nạp ảnh mẫu:', err);
+            errorMessage.value = 'Không thể tải ảnh mẫu: ' + err.message;
+          } finally {
+            isLoading.value = false;
+          }
+        };
+
+        const clearImage = () => {
+          selectedFile.value = null;
+          imagePreview.value = null;
+          predictionResult.value = null;
+          errorMessage.value = '';
+          if (fileInput.value) fileInput.value.value = '';
+        };
+
+        const copyImageToClipboard = async () => {
+          try {
+            if (!imagePreview.value) return;
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = async () => {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.naturalWidth || img.width;
+              canvas.height = img.naturalHeight || img.height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0);
+              canvas.toBlob(async (blob) => {
+                try {
+                  await navigator.clipboard.write([
+                    new ClipboardItem({ 'image/png': blob })
+                  ]);
+                  showToast('Đã sao chép ảnh vào Clipboard thành công!');
+                } catch (e) {
+                  console.warn('Clipboard write error:', e);
+                  showToast('Không thể tự động sao chép. Bạn có thể nhấn chuột phải vào ảnh chọn Copy Image.');
+                }
+              }, 'image/png');
+            };
+            img.src = imagePreview.value;
+          } catch (err) {
+            console.error('Lỗi copy:', err);
+          }
+        };
+
+        // Wiki state
+        const allMushrooms = ref([]);
+        const searchQuery = ref('');
+        const filterType = ref('all');
+
+        // Nạp danh sách 44 loài nấm từ API
+        const loadMushrooms = async () => {
+          try {
+            const res = await fetch('/api/mushrooms');
+            if (res.ok) {
+              allMushrooms.value = await res.json();
+            }
+          } catch (e) {
+            console.error("Không thể nạp danh mục nấm:", e);
+          }
+        };
+
+        onMounted(() => {
+          loadMushrooms();
+          window.addEventListener('paste', handlePasteEvent);
+        });
+
+        // Xử lý dán ảnh từ clipboard (Ctrl + V hoặc nút Dán)
+        const handlePasteEvent = (e) => {
+          if (!e.clipboardData || !e.clipboardData.items) return;
+          const items = e.clipboardData.items;
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+              const blob = items[i].getAsFile();
+              processFile(blob);
+              currentTab.value = 'predict';
+              showToast('Đã dán ảnh từ phím tắt Ctrl + V!');
+              break;
+            }
+          }
+        };
+
+        const pasteFromClipboard = async () => {
+          try {
+            if (navigator.clipboard && navigator.clipboard.read) {
+              const clipboardItems = await navigator.clipboard.read();
+              for (const item of clipboardItems) {
+                const imageType = item.types.find(type => type.startsWith('image/'));
+                if (imageType) {
+                  const blob = await item.getType(imageType);
+                  const file = new File([blob], "clipboard_image.png", { type: imageType });
+                  processFile(file);
+                  showToast('Đã dán ảnh từ Clipboard thành công!');
+                  return;
+                }
+              }
+              errorMessage.value = "Không tìm thấy hình ảnh trong Clipboard. Hãy copy ảnh hoặc chụp màn hình rồi thử lại!";
+            } else {
+              errorMessage.value = "Hãy nhấn phím tắt Ctrl + V trên bàn phím để dán ảnh!";
+            }
+          } catch (err) {
+            console.warn("Clipboard read error:", err);
+            errorMessage.value = "Hãy nhấn phím tắt Ctrl + V trên bàn phím để dán ảnh!";
+          }
+        };
+
+        // Xử lý chọn file
+        const triggerFileInput = () => {
+          fileInput.value.click();
+        };
+
+        const handleFileChange = (e) => {
+          const files = e.target.files;
+          if (files && files[0]) {
+            processFile(files[0]);
+          }
+        };
+
+        const handleDrop = (e) => {
+          isDragging.value = false;
+          const files = e.dataTransfer.files;
+          if (files && files[0]) {
+            processFile(files[0]);
+          }
+        };
+
+        const processFile = (file) => {
+          if (!file.type.startsWith('image/')) {
+            errorMessage.value = 'Vui lòng chọn file hình ảnh (JPG, PNG, WebP...)';
+            return;
+          }
+          selectedFile.value = file;
+          errorMessage.value = '';
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            imagePreview.value = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        };
+
+        // Gửi dự đoán lên server
+        const submitPrediction = async () => {
+          if (!selectedFile.value) return;
+          isLoading.value = true;
+          errorMessage.value = '';
+          predictionResult.value = null;
+
+          const formData = new FormData();
+          formData.append('file', selectedFile.value);
+          formData.append('model', selectedModel.value);
+
+          try {
+            const res = await fetch('/api/predict', {
+              method: 'POST',
+              body: formData
+            });
+            const data = await res.json();
+            if (!res.ok) {
+              throw new Error(data.error || 'Lỗi khi gửi yêu cầu dự đoán');
+            }
+            if (data.status === 'warning') {
+              errorMessage.value = data.message;
+            } else {
+              predictionResult.value = data;
+            }
+          } catch (e) {
+            errorMessage.value = e.message || 'Lỗi kết nối tới máy chủ';
+          } finally {
+            isLoading.value = false;
+          }
+        };
+
+        // Helpers độc tính
+        const getBadgeClass = (edibility) => {
+          switch (edibility) {
+            case 'edible': return 'bg-emerald-100 text-emerald-800 border border-emerald-300';
+            case 'toxic': return 'bg-red-100 text-red-800 border border-red-300';
+            case 'caution': return 'bg-amber-100 text-amber-800 border border-amber-300';
+            default: return 'bg-slate-100 text-slate-800 border border-slate-300';
+          }
+        };
+
+        const getBadgeIcon = (edibility) => {
+          switch (edibility) {
+            case 'edible': return 'fa-solid fa-circle-check text-emerald-600';
+            case 'toxic': return 'fa-solid fa-skull-crossbones text-red-600';
+            case 'caution': return 'fa-solid fa-triangle-exclamation text-amber-600';
+            default: return 'fa-solid fa-ban text-slate-500';
+          }
+        };
+
+        // Lọc danh sách wiki nấm
+        const filteredMushrooms = computed(() => {
+          return allMushrooms.value.filter(m => {
+            const matchSearch = m.vn_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                                m.scientific_name.toLowerCase().includes(searchQuery.value.toLowerCase());
+            const matchFilter = filterType.value === 'all' || m.edibility === filterType.value;
+            return matchSearch && matchFilter;
+          });
+        });
+
+        return {
+          currentTab,
+          selectedModel,
+          selectedFile,
+          imagePreview,
+          isDragging,
+          isLoading,
+          errorMessage,
+          predictionResult,
+          fileInput,
+          triggerFileInput,
+          handleFileChange,
+          handleDrop,
+          submitPrediction,
+          pasteFromClipboard,
+          copyImageToClipboard,
+          clearImage,
+          sampleMushrooms,
+          loadSampleImage,
+          toastMessage,
+          showToast,
+          getBadgeClass,
+          getBadgeIcon,
+          allMushrooms,
+          searchQuery,
+          filterType,
+          filteredMushrooms
+        };
+      }
+    }).mount('#app');
+  </script>
+{% endraw %}
+</body>
+</html>
+

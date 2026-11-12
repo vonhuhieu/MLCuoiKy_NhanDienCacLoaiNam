@@ -1,0 +1,54 @@
+Mô hình: MobileNetV2_pretrained
+Test Accuracy (Top-1): 61.19%
+Test Accuracy (Top-5): 89.58%
+
+                           precision    recall  f1-score   support
+
+        Agaricus augustus     0.4559    0.6078    0.5210        51
+   Amanita amerirubescens     0.4444    0.2449    0.3158        49
+      Amanita brunnescens     0.6757    0.5319    0.5952        47
+    Amanita calyptroderma     0.4902    0.5102    0.5000        49
+       Amanita flavoconia     0.7955    0.7292    0.7609        48
+         Amanita muscaria     0.7885    0.8367    0.8119        49
+           Amanita velosa     0.3077    0.8372    0.4500        43
+        Armillaria mellea     0.5476    0.4792    0.5111        48
+     Armillaria tabescens     0.4677    0.5686    0.5133        51
+      Artomyces pyxidatus     0.8431    0.8431    0.8431        51
+       Bolbitius titubans     0.6429    0.5745    0.6067        47
+         Boletus pallidus     0.5526    0.4375    0.4884        48
+        Boletus rex-veris     0.6750    0.5870    0.6279        46
+Cantharellus californicus     0.6250    0.6000    0.6122        50
+Cantharellus cinnabarinus     0.9070    0.7647    0.8298        51
+     Cerioporus squamosus     0.6250    0.4000    0.4878        50
+           Clitocybe nuda     0.6200    0.6078    0.6139        51
+     Coprinellus micaceus     0.4545    0.6250    0.5263        48
+         Coprinus comatus     0.7714    0.5625    0.6506        48
+  Daedaleopsis confragosa     0.6667    0.6190    0.6420        42
+       Entoloma abortivum     0.4000    0.4091    0.4045        44
+     Flammulina velutipes     0.5556    0.6250    0.5882        48
+     Ganoderma applanatum     0.5122    0.8571    0.6412        49
+         Grifola frondosa     0.8378    0.6739    0.7470        46
+     Hericium coralloides     1.0000    0.6383    0.7792        47
+Hygrophoropsis aurantiaca     0.6327    0.6458    0.6392        48
+    Hypholoma fasciculare     0.5897    0.5476    0.5679        42
+   Hypomyces lactifluorum     0.7273    0.8000    0.7619        50
+    Ischnoderma resinosum     0.8000    0.4444    0.5714        45
+    Laetiporus sulphureus     0.7368    0.6364    0.6829        44
+      Lycoperdon perlatum     0.6552    0.7755    0.7103        49
+     Lycoperdon pyriforme     0.6829    0.6087    0.6437        46
+        Mycena haematopus     0.6316    0.8000    0.7059        45
+      Omphalotus illudens     0.6591    0.6170    0.6374        47
+    Omphalotus olivascens     0.4694    0.5349    0.5000        43
+       Phlebia tremellosa     0.8571    0.5455    0.6667        44
+      Pleurotus ostreatus     0.4237    0.5435    0.4762        46
+    Pleurotus pulmonarius     0.6333    0.4043    0.4935        47
+    Psilocybe pelliculosa     0.8158    0.6889    0.7470        45
+    Retiboletus ornatipes     0.6094    0.8667    0.7156        45
+       Sarcomyxa serotina     0.4412    0.3333    0.3797        45
+       Stropharia ambigua     0.5349    0.5111    0.5227        45
+         Suillus spraguei     0.8235    0.9545    0.8842        44
+  Tricholoma murrillianum     0.6667    0.4651    0.5479        43
+
+                 accuracy                         0.6119      2064
+                macro avg     0.6376    0.6112    0.6119      2064
+             weighted avg     0.6380    0.6119    0.6127      2064
